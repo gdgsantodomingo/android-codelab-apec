@@ -1,16 +1,15 @@
 package org.gdgsantodomingo.apec.android.devfestapec;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
-import org.gdgsantodomingo.apec.android.devfestapec.model.Repo;
+import org.gdgsantodomingo.apec.android.devfestapec.model.User;
 import org.gdgsantodomingo.apec.android.devfestapec.service.ServiceHelper;
 
 import java.util.List;
@@ -21,6 +20,8 @@ import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
+	private RecyclerView mRecyclerView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,12 +29,21 @@ public class MainActivity extends AppCompatActivity {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
+		mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+		showFollowers();
+	}
+
+	private void showFollowers(){
+		ServiceHelper.listFollowers("octocat").enqueue(new Callback<List<User>>() {
 			@Override
-			public void onClick(View view) {
-				Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-						.setAction("Action", null).show();
+			public void onResponse(Response<List<User>> response, Retrofit retrofit) {
+				mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
+				mRecyclerView.setAdapter(new SimpleRecyclerViewAdapter(MainActivity.this, response.body()));
+			}
+
+			@Override
+			public void onFailure(Throwable t) {
+				Snackbar.make(mRecyclerView, getString(R.string.net_error_msg), Snackbar.LENGTH_LONG).setAction("Action", null).show();
 			}
 		});
 
