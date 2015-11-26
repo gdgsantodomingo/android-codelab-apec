@@ -8,24 +8,26 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.widget.EditText;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import java.util.List;
+import javax.inject.Inject;
 import org.gdgsantodomingo.apec.android.devfestapec.model.User;
 import org.gdgsantodomingo.apec.android.devfestapec.service.GitHubService;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static android.support.design.widget.Snackbar.LENGTH_SHORT;
+import static org.gdgsantodomingo.apec.android.devfestapec.model.ClientError.fromErrorBody;
 
 public class MainActivity extends AppCompatActivity {
 
     @Inject                   GitHubService gitHubService;
     @Bind(R.id.recycler_view) RecyclerView  mRecyclerView;
+    @Bind(R.id.user_name)     EditText      userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +36,24 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        showFollowers();
     }
 
-    private void showFollowers() {
-        gitHubService.listFollowers("octocat").enqueue(new Callback<List<User>>() {
+    @OnClick(R.id.search) void search() {
+        final String user = userName.getText().toString();
+        if (user.isEmpty()) {
+            Snackbar.make(userName, R.string.empty_username_error, LENGTH_SHORT).show();
+            return;
+        }
+
+        gitHubService.listFollowers(user).enqueue(new Callback<List<User>>() {
             @Override
             public void onResponse(Response<List<User>> response, Retrofit retrofit) {
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
-                mRecyclerView.setAdapter(new SimpleRecyclerViewAdapter(MainActivity.this, response.body()));
+                if (response.code() == 200 && response.body() != null) {
+                    mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
+                    mRecyclerView.setAdapter(new SimpleRecyclerViewAdapter(MainActivity.this, response.body()));
+                } else {
+                    Snackbar.make(mRecyclerView, fromErrorBody(response.errorBody()).getMessage(), LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -50,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(mRecyclerView, getString(R.string.net_error_msg), Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
-
     }
 
     @Override
