@@ -20,6 +20,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
 import static org.gdgsantodomingo.apec.android.devfestapec.model.ClientError.fromErrorBody;
 
@@ -49,10 +50,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Response<List<User>> response, Retrofit retrofit) {
                 if (response.code() == 200 && response.body() != null) {
-                    mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
-                    mRecyclerView.setAdapter(new SimpleRecyclerViewAdapter(MainActivity.this, response.body()));
+
+                    if (response.body().size() > 0) {
+
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
+                        mRecyclerView.setAdapter(new SimpleRecyclerViewAdapter(MainActivity.this, response.body()));
+
+                    } else {
+
+                        Snackbar
+                            .make(mRecyclerView, R.string.usuario_sin_seguidores, LENGTH_INDEFINITE)
+                            .show();
+
+                    }
+
                 } else {
-                    Snackbar.make(mRecyclerView, fromErrorBody(response.errorBody()).getMessage(), LENGTH_SHORT).show();
+
+                    Snackbar
+                        .make(mRecyclerView, fromErrorBody(response.errorBody()).getMessage(), LENGTH_SHORT)
+                        .show();
                 }
             }
 
