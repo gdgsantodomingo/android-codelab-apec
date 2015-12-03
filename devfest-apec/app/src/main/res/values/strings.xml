@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Devfest Apec</string>
     <string name="action_settings">Settings</string>
-    <string name="net_error_msg">Verifique con su conexión.</string>
+    <string name="net_error_msg">Verifique su conexión</string>
     <string name="nombre_de_usuario">Nombre de usuario</string>
     <string name="buscar">Buscar</string>
     <string name="empty_username_error">Por favor digite un nombre de usuario</string>
+    <string name="usuario_sin_seguidores">Este usuario no tiene seguidores</string>
 </resources>

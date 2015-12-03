@@ -1,10 +1,8 @@
 package org.gdgsantodomingo.apec.android.devfestapec.service;
 
+import java.util.List;
 import org.gdgsantodomingo.apec.android.devfestapec.model.Repo;
 import org.gdgsantodomingo.apec.android.devfestapec.model.User;
-
-import java.util.List;
-
 import retrofit.Call;
 import retrofit.http.GET;
 import retrofit.http.Path;
